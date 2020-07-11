@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tea.dao.OrderDao">
+	
+	<select id="getOrderList" resultMap="olist">
+		select od.*,p.*,o.* from tea_order_details od
+		inner join tea_product p on(od.pid=p.pid)
+		inner join tea_order o on(od.oid=o.oid)
+		<where>
+			<if test="uphone!=null and uphone!=''">
+				and o.uphone like concat('%',#{uphone},'%')
+				or o.trackNum like concat('%',#{uphone},'%')
+			</if>
+		</where>
+	</select>
+	<resultMap type="Order_details" id="olist" autoMapping="true">
+		<association property="product" javaType="Product" autoMapping="true"/>
+		<association property="order" javaType="Order" autoMapping="true"/>
+	</resultMap>
+	<!-- 根据id查询 -->
+	<select id="findByOid" resultMap="olist">
+		select od.*,p.*,o.* from tea_order_details od
+		inner join tea_product p on(od.pid=p.pid)
+		inner join tea_order o on(od.oid=o.oid)
+		where od.odid=#{odid}
+	</select>
+	<!-- 批量删除订单信息的方法 -->
+	<delete id="deleteManyOrder" parameterType="List">
+		delete from tea_order_details where odid in
+		<foreach collection="list" item="d" index="no" open="(" separator="," close=")">
+			#{d}
+		</foreach>
+	</delete>
+</mapper>

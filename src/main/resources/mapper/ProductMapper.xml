@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tea.dao.ProductDao">
+	<!-- 多表联查，查商品表和类别表 -->
+	<select id="getProductList" resultMap="plist" >
+		select p.*,t.typeName from tea_product p
+		inner join tea_producttype t on(p.tid=t.tid)
+		<where>
+			
+			<if test="pname !=null">
+				and p.pname like concat('%',#{pname},'%')
+			</if>
+			<if test="tid!=0">
+				and p.tid=#{tid}
+			</if>			
+		</where>
+	</select>
+	<!-- 根据id查询获取商品信息 -->
+	<select id="findById" resultMap="plist" >
+		select p.*,t.typeName from tea_product p
+		inner join tea_producttype t on(p.tid=t.tid)
+		where p.pid=#{pid}
+	</select>
+	<resultMap type="Product" id="plist" autoMapping="true">
+		<association property="producttype" resultMap="tlist" javaType="Producttype"/>
+	</resultMap>
+	<resultMap type="Producttype" id="tlist" autoMapping="true">
+		<id column="tid" property="tid"/>
+ 		<result column="typeName" property="typeName"/>
+	</resultMap>
+	
+	<!-- 多表联查，商品表，用户表，评论表 -->
+	<select id="getProductCommentList" resultMap="clist">
+		select pm.*,pr.pname,u.uname from tea_productmessage pm
+		inner join tea_product pr on(pm.pid=pr.pid)
+		inner join tea_user u on(pm.uid=u.uid)
+		<where>
+			<if test="pname != null">
+				and pr.pname like concat('%',#{pname},'%')
+			</if>
+		</where>
+		group by pm.mtime desc,pm.mid desc
+	</select>
+	<!-- 根据mid查询商品评论信息 -->
+	<select id="getProductCommentById" resultMap="clist">
+		select pm.*,pr.pname,u.uname from tea_productmessage pm
+		inner join tea_product pr on(pm.pid=pr.pid)
+		inner join tea_user u on(pm.uid=u.uid)
+		where pm.mid=#{mid}
+	</select>
+	<resultMap type="Productcomment" id="clist" autoMapping="true"> 
+		<association property="product" javaType="Product">
+			<id column="tid" property="tid"/>
+			<result column="pname" property="pname"/>
+		</association>
+		<association property="user" javaType="User">
+			<id column="uid" property="uid"/>
+			<result column="uname" property="uname"/>
+		</association>
+	</resultMap>
+	
+	<!-- 查询所有分类信息的方法，并按时间进行排序 -->
+	<select id="getProductTypeList" resultType="Producttype">
+		select * from tea_producttype
+		<where>
+			<if test="typeName != null">
+				and typeName like concat('%',#{typeName},'%')
+			</if>
+		</where>
+		 group by createTime desc,modifyTime desc
+	</select>
+	
+	<!-- 批量删除商品信息的方法 -->
+	<delete id="deleteMany" parameterType="List">
+		delete from tea_product where pid in
+		<foreach collection="list" item="d" index="no" open="(" separator="," close=")">
+			#{d}
+		</foreach>
+	</delete>
+	
+	<!-- 批量删除商品分类信息的方法 -->
+	<delete id="deleteManyOfCategory" parameterType="List">
+		delete from tea_producttype where tid in
+		<foreach collection="list" item="d" index="no" open="(" separator="," close=")">
+			#{d}
+		</foreach>
+	</delete>
+	
+	<!-- 批量删除商品评论信息的方法 -->
+	<delete id="deleteManyOfComment" parameterType="List">
+		delete from tea_productmessage where mid in
+		<foreach collection="list" item="d" index="no" open="(" separator="," close=")">
+			#{d}
+		</foreach>
+	</delete>
+</mapper>

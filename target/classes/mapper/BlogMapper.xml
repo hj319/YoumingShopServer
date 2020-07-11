@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tea.dao.BlogDao">
+
+ 	<!-- 获得所有博客信息的方法，包含模糊查询，分页和多表联查 -->
+ 	<select id="getBlogList" resultMap="blist">
+ 		select b.*,t.tname,u.uname from tea_blog b
+ 		inner join tea_blogtype t on(b.tid=t.tid)
+ 		inner join tea_user u on(b.uid=u.uid)
+ 		<where>
+ 			<if test="tid!=0">
+ 				and b.tid=#{tid}
+ 			</if>
+ 			<if test="btitle!=null">
+ 				and b.btitle like concat('%',#{btitle},'%')
+ 			</if>
+ 		</where>
+ 		group by b.createTime desc,b.bid desc
+ 	</select>
+ 	<!-- 根据id查询出博客信息 -->
+ 	<select id="findById" resultMap="blist">
+ 		select b.*,t.tname,u.uname from tea_blog b
+ 		inner join tea_blogtype t on(b.tid=t.tid)
+ 		inner join tea_user u on(b.uid=u.uid)
+ 		where bid=#{bid}
+ 	</select>
+ 	<resultMap type="Blog" id="blist" autoMapping="true">
+ 		<association property="blogtype" javaType="Blogtype">
+ 			<id column="tid" property="tid"/>
+ 			<result column="tname" property="tname"/>
+ 		</association>
+ 		<association property="user" javaType="User">
+ 			<id column="uid" property="uid"/>
+ 			<result column="uname" property="uname"/>
+ 		</association>
+ 	</resultMap>
+ 	
+ 	<!-- 获得所有博客分类信息的方法，包括分页，模糊查询 -->
+ 	<select id="getBlogtypeList" resultType="Blogtype">
+ 		select * from tea_blogtype
+ 		<where>
+ 			<if test="tname!=null">
+ 				and tname like concat('%',#{tname},'%')
+ 			</if>
+ 		</where>
+ 		group by createTime desc,modifyTime desc
+ 	</select>
+ 	
+ 	<!-- 获得所有博客评论信息的方法，包括分页，模糊查询,多表联查 -->
+ 	<select id="getBlogCommentsList" resultMap="clist">
+ 		select c.*, b.btitle,u.uname from tea_blogcomments c
+ 		inner join tea_blog b on(c.bid=b.bid)
+ 		inner join tea_user u on(c.uid=u.uid)
+ 		<where>
+ 			<if test="btitle!=null">
+ 				b.btitle like concat('%',#{btitle},'%')
+ 			</if>
+ 		</where>
+ 		group by utime desc,cid desc
+ 	</select>
+ 	<select id="getBlogCommentById" resultMap="clist">
+ 		select c.*, b.btitle,b.bcontent,u.uname from tea_blogcomments c
+ 		inner join tea_blog b on(c.bid=b.bid)
+ 		inner join tea_user u on(c.uid=u.uid)
+ 		where c.cid=#{cid}
+ 	</select>
+ 	<resultMap type="Blogcomments" id="clist" autoMapping="true">
+ 		<association property="blog" javaType="Blog">
+ 			<id column="bid" property="bid"/>
+ 			<result column="btitle" property="btitle"/>
+ 			<result column="bcontent" property="bcontent"/>
+ 		</association>
+ 		<association property="user" javaType="User">
+ 			<id column="uid" property="uid"/>
+ 			<result column="uname" property="uname"/>
+ 		</association>
+ 	</resultMap>
+ 	
+ 	<!-- 批量删除博客信息的方法 -->
+	<delete id="deleteManyBlog" parameterType="List">
+		delete from tea_blog where bid in
+		<foreach collection="list" item="d" index="no" open="(" separator="," close=")">
+			#{d}
+		</foreach>
+	</delete>
+	
+	<!-- 批量删除博客分类信息的方法 -->
+	<delete id="deleteManyOfBlogType" parameterType="List">
+		delete from tea_blogtype where tid in
+		<foreach collection="list" item="d" index="no" open="(" separator="," close=")">
+			#{d}
+		</foreach>
+	</delete>
+	
+	<!-- 批量删除博客评论信息的方法 -->
+	<delete id="deleteManyOfBlogComment" parameterType="List">
+		delete from tea_blogcomments where cid in
+		<foreach collection="list" item="d" index="no" open="(" separator="," close=")">
+			#{d}
+		</foreach>
+	</delete>
+</mapper>

@@ -1,0 +1,14 @@
+eclipse.preferences.version=1
+encoding//src/main/WebApp/WEB-INF/jsp/blog-comment.jsp=UTF-8
+encoding//src/main/WebApp/WEB-INF/jsp/blog-list.jsp=UTF-8
+encoding//src/main/WebApp/WEB-INF/jsp/index.jsp=UTF-8
+encoding//src/main/WebApp/WEB-INF/jsp/order-list.jsp=UTF-8
+encoding//src/main/WebApp/WEB-INF/jsp/pages_edit_pwd.jsp=UTF-8
+encoding//src/main/WebApp/WEB-INF/jsp/pages_login.jsp=UTF-8
+encoding//src/main/WebApp/WEB-INF/jsp/pages_profile.jsp=UTF-8
+encoding//src/main/WebApp/WEB-INF/jsp/product-category.jsp=UTF-8
+encoding//src/main/WebApp/WEB-INF/jsp/product-comment.jsp=UTF-8
+encoding//src/main/WebApp/WEB-INF/jsp/product-list.jsp=UTF-8
+encoding//src/main/java/cn/tea/controller/ProductController.java=UTF-8
+encoding//src/main/resources/datasource.properties=UTF-8
+encoding//src/main/resources/mail.properties=UTF-8
